@@ -12,7 +12,7 @@ other.
 The repository contains the following core components and assemblies:
 * **[DiGi.YOLO.ONNX](DiGi.YOLO.ONNX)** (Path: `DiGi.YOLO.ONNX\DiGi.YOLO.ONNX`)
 
-It is a companion of [DiGi.YOLO](https://github.com/ZiolkowskiJakub/DiGi.YOLO) rather than part of
+It is a companion of [DiGi.YOLO](https://github.com/DiGi-Organization/DiGi.YOLO) rather than part of
 it, so that `DiGi.YOLO` keeps its dependency set — `DiGi.Core` and `System.Text.Json` — and only a
 host that actually wants in-process inference pays for ONNX Runtime and OpenCV.
 
@@ -55,7 +55,7 @@ with it, and the symptom of forgetting is a partial result rather than an error.
 The ONNX file is a **one-off preparation step that still needs ultralytics**, so removing the Python
 dependency removes it from every run rather than from the repository. `DiGi.YOLO`'s `export.py`
 produces it, and must be run with the ultralytics version pinned in `DiGi.YOLO`'s `requirements.txt`
-(`8.4.165`, verified in [DiGi.YOLO#17](https://github.com/ZiolkowskiJakub/DiGi.YOLO/issues/17) to
+(`8.4.165`, verified in [DiGi.YOLO#17](https://github.com/DiGi-Organization/DiGi.YOLO/issues/17) to
 reproduce the frozen checkpoint's detections) — a version nobody has checked can export a different
 detector. The export is repeated whenever the checkpoint is
 retrained: a new checkpoint is a new detector, so the new graph is re-measured against the CPython
@@ -69,13 +69,13 @@ python export.py --model "user files/YOLO/models/model.pt" --output "user files/
 C# side exactly as ultralytics suppresses it. Since ultralytics 8.4, exporting with `nms=False`
 selects the NMS-free one-to-one head of a model that has one (YOLO26), which answers
 `[batch, max_det, 6]` and is a different detector from the one the CPython path scores, so the export
-leaves `nms` at its default ([DiGi.YOLO#20](https://github.com/ZiolkowskiJakub/DiGi.YOLO/issues/20)).
+leaves `nms` at its default ([DiGi.YOLO#20](https://github.com/DiGi-Organization/DiGi.YOLO/issues/20)).
 `Modify.Predict` refuses such a graph before scoring anything — by the `end2end` flag ultralytics
 writes into the metadata, or by a declared output that states no more anchors than channels — rather
 than decoding it into detections that look plausible and mean nothing.
 
 The provenance of the artefact it produces is recorded in the
-[DiGi.YOLO README](https://github.com/ZiolkowskiJakub/DiGi.YOLO#readme), beside the checkpoint's own.
+[DiGi.YOLO README](https://github.com/DiGi-Organization/DiGi.YOLO#readme), beside the checkpoint's own.
 
 ---
 
@@ -90,9 +90,9 @@ detection by detection.
 
 Observed over the same 2 000 held images of county 104106 for each checkpoint. `train8` is the frozen
 detector in production. `train9_fresh` is the retrained detector selected by the gate of
-[DiGi.GIS.YOLO.UI#12](https://github.com/ZiolkowskiJakub/DiGi.GIS.YOLO.UI/issues/12), exported on
+[DiGi.GIS.YOLO.UI#12](https://github.com/DiGi-Organization/DiGi.GIS.YOLO.UI/issues/12), exported on
 2026-10-07 and staged beside it. It becomes `model.onnx` when it ships
-([#2](https://github.com/ZiolkowskiJakub/DiGi.YOLO.ONNX/issues/2)).
+([#2](https://github.com/DiGi-Organization/DiGi.YOLO.ONNX/issues/2)).
 
 | Bound | Stated | `train8` (YOLOv8x, 2026-09-03) | `train9_fresh` (YOLO26x, 2026-10-07) |
 |---|---|---|---|
@@ -138,7 +138,7 @@ The CPython path reaches **12.8 ms/image** on CUDA in steady state. The ONNX pat
 execution provider takes **177 ms/image** for `train8` (68 million parameters at 640×640) and
 **172 ms/image** for `train9_fresh` (YOLO26x, 56 million). That is expected rather than surprising,
 and it is why the pipeline stays on CPython. Choosing a GPU execution provider to make the in-process
-path fast ([#1](https://github.com/ZiolkowskiJakub/DiGi.YOLO.ONNX/issues/1)) was closed as not
+path fast ([#1](https://github.com/DiGi-Organization/DiGi.YOLO.ONNX/issues/1)) was closed as not
 planned on 2026-10-07: the in-process path is kept as a parity reference, not as a pipeline engine.
 
 ## 💻 Coding Guidelines for Developers & AI Agents
@@ -351,6 +351,11 @@ never in `files/`.** Both are copied to the build output by a `.csproj` target; 
   - **Generated output also belongs here.** Test reports, diagnostic dumps, benchmark logs and text
     logs written during a run go to `user files/reports/` — never to `files/`. In tests, resolve the
     folder with `assembly.ReportsDirectory()` rather than a hardcoded path (see §7).
+  - **`user files/` ships with the build.** `CopyUserFiles` flattens it into `bin` and `Deploy.ps1`
+    carries `bin` to the hosts, so it holds only what the deployed tool reads at runtime. Training inputs
+    (alternative weights, base weights, reference tables, training options and reports) live in a training
+    directory outside the workspace; the Year Built runner extension deploys from an allowlist, of `YOLO`
+    only `model.pt` (`Coding - YOLO.md` §3, §5).
 
 **Overriding Rule:** In case of duplicate relative file paths between `files/` and `user files/`, assets from `user files/` MUST ALWAYS take precedence and override assets from `files/`. Specifying `AfterTargets="CopyFiles"` ensures `CopyUserFiles` runs strictly after `CopyFiles` to overwrite any duplicates.
 
@@ -625,7 +630,7 @@ public GroundTemperature(GroundTemperature? groundTemperature)
 #### 📂 Shared Test Data Files (Fixtures)
 When a test needs an on-disk input file (`.gmf`, `.json`, `.epw`, …), use the **one shared `files` directory** — do NOT add a per-project data folder.
 
-1. **Location:** `DiGi.Test/files/` (the `DiGi.Test` repo sits beside the other `DiGi.*` repos under the `DigiProject` workspace root; from a `DiGi.Test/<ProjectName>.xUnit/` dir it is `../files/`). The path is given relative to the workspace root because this guideline lives in the separate `DiGi.Maintenance` repo.
+1. **Location:** `DiGi.Test/files/` (the `DiGi.Test` repo sits beside the other `DiGi.*` repos under the `DiGi` workspace root; from a `DiGi.Test/<ProjectName>.xUnit/` dir it is `../files/`). The path is given relative to the workspace root because this guideline lives in the separate `DiGi.Maintenance` repo.
 2. **Add a fixture:** drop the file into `DiGi.Test/files/` and reference it by file name only. Files are read **in place** (not copied to build output) — no `<None CopyToOutputDirectory>` entry needed.
 3. **Resolve the path:** `Core.xUnit.Query.FilePath(System.Reflection.Assembly.GetExecutingAssembly(), "<fileName>")` returns the absolute path to `DiGi.Test/files/<fileName>`; for the directory itself use `assembly.FilesDirectory()`. Both live in `DiGi.Core.xUnit/Query/` (`FilePath.cs`, `FilesDirectory.cs`) and resolve by walking up from the test assembly's `bin/<ProjectName>.xUnit/` output. `FilePath` `Assert`s the directory resolves, so a `null`/missing result fails the test cleanly.
 4. **No `using` needed** — call it fully qualified as `Core.xUnit.Query.FilePath(...)`; it resolves via the same innermost-enclosing-namespace lookup as `Core.xUnit.Query.SerializationCheck(...)`, as long as the test namespace nests under `DiGi`. Add `using System.Reflection;` (or fully qualify `Assembly`).
@@ -697,6 +702,7 @@ also mirrored per repository as a skill under `.agents/skills/<skill-name>/SKILL
 | `Coding - Automatic Tests.md` | Writing xUnit tests, shared fixtures, or test report output. |
 | `Coding - Geometry.md` | Orienting, closing, triangulating, hashing or sweeping geometry — `SunDirection` points away from the sun, `Vector3D.Unit` is never null, `IsClosed` is not monotonic in tolerance, sub-tolerance corners hang `Triangulate`, symmetric fixtures cannot catch a mirror. |
 | `Coding - ComputeSharp.md` | Writing or changing a ComputeSharp `IComputeShader` — never combine an odd root constant count (`ConstantBufferSize / 4`) with an odd resource count (silently wrong results on NVIDIA RTX 5090); reorder or pad fields, then update the layout guard fact. |
+| `Coding - YOLO.md` | YOLO Year Built detector — runner modes, `model.pt` resolution, the first-detection year built predictor, training data and training scratch outside the workspace (never in `user files/`), deploying the runner extension from an allowlist (only `model.pt`). |
 | `Coding - Templates.md` | Scaffolding a solution/project from `templates/`. |
 | `Coding - WebAPI GLTF.md` | Building or extending a Web API on the `DiGi.GLTF` 3D framework. |
 | `Coding - WebAPI Contracts.md` | Changing a WebAPI route/parameter, or writing an HTTP client of one; adding a controller constructor (exactly one public) or returning a DiGi object (`Content(Core.Convert.ToSystem_String(x), "application/json")`, never `Ok(x)`); client timeouts. |
