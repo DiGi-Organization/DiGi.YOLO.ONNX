@@ -48,9 +48,9 @@ namespace DiGi.YOLO.ONNX
                 return null;
             }
 
-            modelPath = YOLO.Query.NormalizedPath(modelPath) ?? modelPath;
-            sourceDirectory = YOLO.Query.NormalizedPath(sourceDirectory) ?? sourceDirectory;
-            outputPath = YOLO.Query.NormalizedPath(outputPath) ?? outputPath;
+            modelPath = Python.Query.NormalizedPath(modelPath) ?? modelPath;
+            sourceDirectory = Python.Query.NormalizedPath(sourceDirectory) ?? sourceDirectory;
+            outputPath = Python.Query.NormalizedPath(outputPath) ?? outputPath;
 
             DateTimeOffset start = DateTimeOffset.Now;
 

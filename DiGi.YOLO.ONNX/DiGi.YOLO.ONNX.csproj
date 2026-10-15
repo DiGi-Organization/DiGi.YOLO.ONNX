@@ -35,6 +35,9 @@
 		<Reference Include="DiGi.Core">
 			<HintPath>..\..\DiGi.Core\bin\DiGi.Core.dll</HintPath>
 		</Reference>
+		<Reference Include="DiGi.Python">
+			<HintPath>..\..\DiGi.Python\bin\DiGi.Python.dll</HintPath>
+		</Reference>
 		<Reference Include="DiGi.YOLO">
 			<HintPath>..\..\DiGi.YOLO\bin\DiGi.YOLO.dll</HintPath>
 		</Reference>

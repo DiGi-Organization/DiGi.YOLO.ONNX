@@ -33,9 +33,9 @@ namespace DiGi.YOLO.ONNX
         /// <returns>The options, or <c>null</c> when a required path is missing, the confidence or the overlap is not a value between zero and one, or the batch size is less than one.</returns>
         public static YOLOONNXPredictionOptions? YOLOONNXPredictionOptions(string? modelPath, string? sourceDirectory, string? outputPath, double confidence, double iou, int batchSize)
         {
-            string? modelPath_Resolved = YOLO.Query.NormalizedPath(modelPath);
-            string? sourceDirectory_Resolved = YOLO.Query.NormalizedPath(sourceDirectory);
-            string? outputPath_Resolved = YOLO.Query.NormalizedPath(outputPath);
+            string? modelPath_Resolved = Python.Query.NormalizedPath(modelPath);
+            string? sourceDirectory_Resolved = Python.Query.NormalizedPath(sourceDirectory);
+            string? outputPath_Resolved = Python.Query.NormalizedPath(outputPath);
 
             if (string.IsNullOrWhiteSpace(modelPath_Resolved) || !File.Exists(modelPath_Resolved))
             {
