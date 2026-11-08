@@ -21,15 +21,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- Configure standard project settings for C# 12+ / Visual Studio 2026 -->
-    <LangVersion>12.0</LangVersion>
+    <!-- Configure standard project settings for the latest C# / Visual Studio 2026 -->
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <!-- Off, matching DiGi.GIS.Rhino, DiGi.GIS.SQLite, DiGi.GML, DiGi.SAM and DiGi.Translate - every
-         repository built from this template except one has turned it off. Every source file here writes
-         its using directives explicitly, as the rest of the workspace does; leaving implicit usings on
-         would make those redundant without making them an error, so this is consistency rather than a
-         build requirement. -->
-    <ImplicitUsings>disable</ImplicitUsings>
+    <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
